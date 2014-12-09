@@ -2,15 +2,7 @@ class zabbix::agent::params {
     $config = '/etc/zabbix/zabbix_agentd.conf'
     $config_dir = '/etc/zabbix/zabbix_agentd.d'
     $pidfile = '/var/run/zabbix/zabbix_agentd.pid'
-    case $::osfamily {
-        default: { fail("Unsupported platform ${::osfamily}") }
-        'Debian': {
-            $logfile = '/var/log/zabbix-agent/zabbix_agentd.log'
-        }
-        'RedHat': {
-            $logfile = '/var/log/zabbix/zabbix_agentd.log'
-        }
-    }
+    $logfile = '/var/log/zabbix/zabbix_agentd.log'
     $logfile_size = 0
     $metadata = "kernel=${::kernel};osfamily=${::osfamily};os=${::operatingsystem};osversion=${::operatingsystemrelease};"
 }
@@ -47,7 +39,7 @@ class zabbix::agent (
                 key_server => 'pgp.mit.edu',
             }
             apt::hold { 'zabbix-agent':
-                version => '${version}.*',
+                version => "${version}.*",
             }
             Class['apt::update'] -> Package['zabbix-agent']
         }
@@ -58,7 +50,7 @@ class zabbix::agent (
     }
 
     package { 'zabbix-agent':
-        ensure => present,
+        ensure => latest,
     }
     ->
     file { $config:
@@ -75,5 +67,12 @@ class zabbix::agent (
         recurse => true,
         purge => true,
         require => Package['zabbix-agent'],
+    }
+    file { "$config_dir/sysinfo.conf":
+        source => 'puppet:///modules/zabbix/sysinfo.conf',
+    } ~> Service['zabbix-agent']
+
+    if defined(Class['postgresql::server']) {
+        include zabbix::postgresql
     }
 }
