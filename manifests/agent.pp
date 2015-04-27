@@ -43,10 +43,14 @@ class zabbix::agent (
             }
             Class['apt::update'] -> Package['zabbix-agent']
         }
-        #'RedHat': {
-        #    yumrepo { 'zabbix':
-        #    }
-        #}
+        'RedHat': {
+            yumrepo { 'zabbix':
+                baseurl => "http://repo.zabbix.com/zabbix/${version}/rhel/${::operatingsystemmajrelease}/\$basearch",
+                gpgcheck => true,
+                gpgkey => "http://repo.zabbix.com/RPM-GPG-KEY-ZABBIX",
+            }
+            Yumrepo['zabbix'] -> Package['zabbix-agent']
+        }
     }
 
     package { 'zabbix-agent':
