@@ -64,6 +64,7 @@ class zabbix::agent (
     ~>
     service { 'zabbix-agent':
         ensure => running,
+        enable => true,
     }
 
     file { $config_dir:
