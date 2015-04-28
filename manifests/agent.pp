@@ -45,6 +45,7 @@ class zabbix::agent (
         }
         'RedHat': {
             yumrepo { 'zabbix':
+                descr => "Zabbix",
                 baseurl => "http://repo.zabbix.com/zabbix/${version}/rhel/${::operatingsystemmajrelease}/\$basearch",
                 gpgcheck => true,
                 gpgkey => "http://repo.zabbix.com/RPM-GPG-KEY-ZABBIX",
