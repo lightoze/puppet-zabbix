@@ -35,7 +35,7 @@ class zabbix::agent (
                 location => "http://repo.zabbix.com/zabbix/${version}/${os}",
                 release => "${::lsbdistcodename}",
                 repos => 'main',
-                key => '79EA5ED4',
+                key => 'FBABD5FB20255ECAB22EE194D13D58E479EA5ED4',
                 key_server => 'pgp.mit.edu',
             }
             apt::hold { 'zabbix-agent':
