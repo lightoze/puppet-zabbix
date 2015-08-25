@@ -21,6 +21,7 @@ class zabbix::agent (
     $listen_ip = undef,
     $server,
     $server_active = undef,
+    $allow_root = false,
     $agents = 3,
     $timeout = 5,
     $unsafe_parameters = false,
@@ -75,8 +76,10 @@ class zabbix::agent (
         require => Package['zabbix-agent'],
     }
     file { "$config_dir/sysinfo.conf":
-        source => 'puppet:///modules/zabbix/sysinfo.conf',
+        content => template('zabbix/sysinfo.conf.erb'),
     } ~> Service['zabbix-agent']
+
+    ensure_resource('package', 'pciutils', { 'ensure' => 'present' })
 
     if defined(Class['postgresql::server']) {
         include zabbix::postgresql
