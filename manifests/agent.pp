@@ -40,6 +40,7 @@ class zabbix::agent (
         key_server => 'pgp.mit.edu',
       }
       apt::pin { 'zabbix-agent':
+        packages => 'zabbix-agent',
         version  => "${version}.*",
         priority => 1001,
       }
