@@ -90,7 +90,7 @@ HostMetadata=<%= @metadata %>
 ### Option: AllowRoot
 #   Allow the agent to run as 'root'. If disabled and the agent is started by 'root',
 #   the agent will try to switch to user 'zabbix' instead.
-AllowRoot=<%= @allow_root ? '0' : '1' %>
+AllowRoot=<%= @allow_root ? '1' : '0' %>
 
 ### Option: Timeout
 #	Spend no more than Timeout seconds on processing
