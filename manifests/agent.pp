@@ -39,8 +39,9 @@ class zabbix::agent (
                 key => 'FBABD5FB20255ECAB22EE194D13D58E479EA5ED4',
                 key_server => 'pgp.mit.edu',
             }
-            apt::hold { 'zabbix-agent':
+            apt::pin { 'zabbix-agent':
                 version => "${version}.*",
+                priority => 1001,
             }
             Class['apt::update'] -> Package['zabbix-agent']
         }
