@@ -71,6 +71,11 @@ class zabbix::agent (
     enable => true,
   }
 
+  user { 'zabbix':
+    groups  => ['puppet'],
+    require => Package['zabbix-agent'],
+  }
+
   file { $config_dir:
     ensure  => directory,
     recurse => true,
