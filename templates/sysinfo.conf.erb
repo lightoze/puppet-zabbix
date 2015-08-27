@@ -2,4 +2,4 @@ UserParameter=system.lsb.info,lsb_release -sd
 UserParameter=system.dmi.product,echo '<%= @dmi['product']['name'] %>'
 UserParameter=system.dmi.chassis,echo '<%= @dmi['manufacturer'] %> <%= @dmi['product']['name'] %> <%= @dmi['chassis']['type'] %>'
 UserParameter=system.dmi.serial,echo '<%= @dmi['product']['serial_number'] %>'
-UserParameter=puppet.lastrun,stat -c %Y '<%= @puppet_vardir %>/state/last_run_report.yaml'
+UserParameter=puppet.lastrun[*],<%= @scripts_dir %>/read_yaml.sh '<%= @puppet_vardir %>/state/last_run_summary.yaml' '$1'

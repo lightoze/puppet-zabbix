@@ -1,6 +1,8 @@
 class zabbix::agent::params {
-  $config = '/etc/zabbix/zabbix_agentd.conf'
-  $config_dir = '/etc/zabbix/zabbix_agentd.d'
+  $basedir = '/etc/zabbix'
+  $config = "${basedir}/zabbix_agentd.conf"
+  $config_dir = "${basedir}/zabbix_agentd.d"
+  $scripts_dir = "${basedir}/scripts"
   $pidfile = '/var/run/zabbix/zabbix_agentd.pid'
   $logfile = '/var/log/zabbix/zabbix_agentd.log'
   $logfile_size = 0
@@ -11,6 +13,7 @@ class zabbix::agent (
   $version = '2.2',
   $config = $::zabbix::agent::params::config,
   $config_dir = $zabbix::agent::params::config_dir,
+  $scripts_dir = $zabbix::agent::params::scripts_dir,
   $pidfile = $::zabbix::agent::params::pidfile,
   $logfile = $::zabbix::agent::params::logfile,
   $logfile_size = $::zabbix::agent::params::logfile_size,
@@ -82,7 +85,19 @@ class zabbix::agent (
     purge   => true,
     require => Package['zabbix-agent'],
   }
-  file { "$config_dir/sysinfo.conf":
+  ->
+  file { $scripts_dir:
+    ensure  => directory,
+    recurse => true,
+    purge   => true,
+  }
+
+  file { "${scripts_dir}/read_yaml.sh":
+    ensure => file,
+    source => 'puppet:///modules/zabbix/read_yaml.sh',
+    mode   => '755',
+  }
+  file { "${config_dir}/sysinfo.conf":
     content => template('zabbix/sysinfo.conf.erb'),
   } ~> Service['zabbix-agent']
 
