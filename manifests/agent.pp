@@ -74,9 +74,13 @@ class zabbix::agent (
     enable => true,
   }
 
-  user { 'zabbix':
-    groups  => ['puppet'],
-    require => Package['zabbix-agent'],
+  fooacl::conf { 'puppet-zabbix':
+    target      => [
+      $::puppet_vardir,
+      "${::puppet_vardir}/state/last_run_summary.yaml"
+    ],
+    permissions => ['user:zabbix:rX'],
+    require     => Package['zabbix-agent'],
   }
 
   file { $config_dir:
