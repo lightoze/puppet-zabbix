@@ -1,24 +1,48 @@
-# This is a config file for the Zabbix agent daemon (Unix)
+# This is a configuration file for Zabbix agent daemon (Unix)
 # To get more information about Zabbix, visit http://www.zabbix.com
 
 ############ GENERAL PARAMETERS #################
 
 ### Option: PidFile
-#	Name of PID file.
+# Name of PID file.
 PidFile=<%= @pidfile %>
 
+### Option: LogType
+# Specifies where log messages are written to:
+#   system  - syslog
+#   file    - file specified with LogFile parameter
+#   console - standard output
+#
+# Mandatory: no
+# Default:
+# LogType=file
+
 ### Option: LogFile
-#	Name of log file.
-#	If not set, syslog is used.
+# Log file name for LogType 'file' parameter.
 LogFile=<%= @logfile %>
 
 ### Option: LogFileSize
-#	Maximum size of log file in MB.
-#	0 - disable automatic log rotation.
+# Maximum size of log file in MB.
+# 0 - disable automatic log rotation.
+# Range: 0-1024
 LogFileSize=<%= @logfile_size %>
 
+### Option: DebugLevel
+# Specifies debug level:
+# 0 - basic information about starting and stopping of Zabbix processes
+# 1 - critical information
+# 2 - error information
+# 3 - warnings
+# 4 - for debugging (produces lots of information)
+# 5 - extended debugging (produces even more information)
+#
+# Mandatory: no
+# Range: 0-5
+# Default:
+# DebugLevel=3
+
 ### Option: SourceIP
-#	Source IP address for outgoing connections.
+# Source IP address for outgoing connections.
 <% if @source_ip -%>
 SourceIP=<%= @source_ip %>
 <% end -%>
@@ -45,6 +69,7 @@ Server=<%= @server %>
 
 ### Option: ListenPort
 #	Agent will listen on this port for connections from the server.
+# Range: 1024-32767
 ListenPort=<%= @listen_port %>
 
 ### Option: ListenIP
@@ -57,6 +82,7 @@ ListenIP=<%= @listen_ip %>
 ### Option: StartAgents
 #	Number of pre-forked instances of zabbix_agentd that process passive checks.
 #	If set to 0, disables passive checks and the agent will not listen on any TCP port.
+# Range: 0-100
 StartAgents=<%= @agents %>
 
 ##### Active checks related
@@ -73,10 +99,19 @@ ServerActive=<%= @server_active %>
 <% end -%>
 
 ### Option: Hostname
-#	Unique, case sensitive hostname.
-#	Required for active checks and must match hostname as configured on the server.
-#	Value is acquired from HostnameItem if undefined.
-Hostname=<%= scope['fqdn'] %>
+# Unique, case sensitive hostname.
+# Required for active checks and must match hostname as configured on the server.
+# Value is acquired from HostnameItem if undefined.
+#
+# Mandatory: no
+
+### Option: HostnameItem
+# Item used for generating Hostname if it is undefined. Ignored if Hostname is defined.
+# Does not support UserParameters or aliases.
+#
+# Mandatory: no
+# Default:
+# HostnameItem=system.hostname
 
 ### Option: HostMetadata
 #	Optional parameter that defines host metadata.
@@ -87,24 +122,202 @@ Hostname=<%= scope['fqdn'] %>
 HostMetadata=<%= @metadata %>
 <% end -%>
 
-### Option: AllowRoot
-#   Allow the agent to run as 'root'. If disabled and the agent is started by 'root',
-#   the agent will try to switch to user 'zabbix' instead.
-AllowRoot=<%= @allow_root ? '1' : '0' %>
+### Option: HostMetadataItem
+# Optional parameter that defines an item used for getting host metadata.
+# Host metadata is used at host auto-registration process.
+# During an auto-registration request an agent will log a warning message if
+# the value returned by specified item is over limit of 255 characters.
+# This option is only used when HostMetadata is not defined.
+#
+# Mandatory: no
+
+### Option: RefreshActiveChecks
+# How often list of active checks is refreshed, in seconds.
+#
+# Mandatory: no
+# Range: 60-3600
+# Default:
+# RefreshActiveChecks=120
+
+### Option: BufferSend
+# Do not keep data longer than N seconds in buffer.
+#
+# Mandatory: no
+# Range: 1-3600
+# Default:
+# BufferSend=5
+
+### Option: BufferSize
+# Maximum number of values in a memory buffer. The agent will send
+# all collected data to Zabbix Server or Proxy if the buffer is full.
+#
+# Mandatory: no
+# Range: 2-65535
+# Default:
+# BufferSize=100
+
+### Option: MaxLinesPerSecond
+# Maximum number of new lines the agent will send per second to Zabbix Server
+# or Proxy processing 'log' and 'logrt' active checks.
+# The provided value will be overridden by the parameter 'maxlines',
+# provided in 'log' or 'logrt' item keys.
+#
+# Mandatory: no
+# Range: 1-1000
+# Default:
+# MaxLinesPerSecond=20
+
+############ ADVANCED PARAMETERS #################
+
+### Option: Alias
+# Sets an alias for an item key. It can be used to substitute long and complex item key with a smaller and simpler one.
+# Multiple Alias parameters may be present. Multiple parameters with the same Alias key are not allowed.
+# Different Alias keys may reference the same item key.
+# For example, to retrieve the ID of user 'zabbix':
+# Alias=zabbix.userid:vfs.file.regexp[/etc/passwd,^zabbix:.:([0-9]+),,,,\1]
+# Now shorthand key zabbix.userid may be used to retrieve data.
+# Aliases can be used in HostMetadataItem but not in HostnameItem parameters.
+#
+# Mandatory: no
 
 ### Option: Timeout
 #	Spend no more than Timeout seconds on processing
+# Range: 1-30
 Timeout=<%= @timeout %>
 
+### Option: AllowRoot
+# Allow the agent to run as 'root'. If disabled and the agent is started by 'root', the agent
+# will try to switch to the user specified by the User configuration option instead.
+# Has no effect if started under a regular user.
+# 0 - do not allow
+# 1 - allow
+AllowRoot=<%= @allow_root ? 1 : 0 %>
+
+### Option: User
+# Drop privileges to a specific, existing user on the system.
+# Only has effect if run as 'root' and AllowRoot is disabled.
+#
+# Mandatory: no
+# Default:
+# User=zabbix
+
 ### Option: Include
-#	You may include individual files or all files in a directory in the configuration file.
-#	Installing Zabbix will create include directory in /etc/zabbix, unless modified during the compile time.
+# You may include individual files or all files in a directory in the configuration file.
+# Installing Zabbix will create include directory in /usr/local/etc, unless modified during the compile time.
 Include=<%= @config_dir %>/
 
 ####### USER-DEFINED MONITORED PARAMETERS #######
 
 ### Option: UnsafeUserParameters
 #	Allow all characters to be passed in arguments to user-defined parameters.
+# The following characters are not allowed:
+# \ ' " ` * ? [ ] { } ~ $ ! & ; ( ) < > | # @
+# Additionally, newline characters are not allowed.
 #	0 - do not allow
 #	1 - allow
 UnsafeUserParameters=<%= @unsafe_parameters ? 1 : 0 %>
+
+####### LOADABLE MODULES #######
+
+### Option: LoadModulePath
+# Full path to location of agent modules.
+# Default depends on compilation options.
+#
+# Mandatory: no
+# Default:
+# LoadModulePath=${libdir}/modules
+
+### Option: LoadModule
+# Module to load at agent startup. Modules are used to extend functionality of the agent.
+# Format: LoadModule=<module.so>
+# The modules must be located in directory specified by LoadModulePath.
+# It is allowed to include multiple LoadModule parameters.
+#
+# Mandatory: no
+
+####### TLS-RELATED PARAMETERS #######
+
+### Option: TLSConnect
+# How the agent should connect to server or proxy. Used for active checks.
+# Only one value can be specified:
+#   unencrypted - connect without encryption
+#   psk   - connect using TLS and a pre-shared key
+#   cert  - connect using TLS and a certificate
+#
+# Mandatory: yes, if TLS certificate or PSK parameters are defined (even for 'unencrypted' connection)
+TLSConnect=<%= @tls_connect %>
+
+### Option: TLSAccept
+# What incoming connections to accept.
+# Multiple values can be specified, separated by comma:
+#   unencrypted - accept connections without encryption
+#   psk   - accept connections secured with TLS and a pre-shared key
+#   cert  - accept connections secured with TLS and a certificate
+#
+# Mandatory: yes, if TLS certificate or PSK parameters are defined (even for 'unencrypted' connection)
+TLSAccept=<%= @tls_accept %>
+
+### Option: TLSCAFile
+# Full pathname of a file containing the top-level CA(s) certificates for
+# peer certificate verification.
+#
+# Mandatory: no
+<% if @tls_cafile -%>
+TLSCAFile=<%= @tls_cafile %>
+<% end -%>
+
+### Option: TLSCRLFile
+# Full pathname of a file containing revoked certificates.
+#
+# Mandatory: no
+<% if @tls_crlfile -%>
+TLSCRLFile=<%= @tls_crlfile %>
+<% end -%>
+
+### Option: TLSServerCertIssuer
+# Allowed server certificate issuer.
+#
+# Mandatory: no
+<% if @tls_servercert_issuer -%>
+TLSServerCertIssuer=<%= @tls_servercert_issuer %>
+<% end -%>
+
+### Option: TLSServerCertSubject
+# Allowed server certificate subject.
+#
+# Mandatory: no
+<% if @tls_servercert_subject -%>
+TLSServerCertSubject=<%= @tls_servercert_subject %>
+<% end -%>
+
+### Option: TLSCertFile
+# Full pathname of a file containing the agent certificate or certificate chain.
+#
+# Mandatory: no
+<% if @tls_certfile -%>
+TLSCertFile=<%= @tls_certfile %>
+<% end -%>
+
+### Option: TLSKeyFile
+# Full pathname of a file containing the agent private key.
+#
+# Mandatory: no
+<% if @tls_keyfile -%>
+TLSKeyFile=<%= @tls_keyfile %>
+<% end -%>
+
+### Option: TLSPSKIdentity
+# Unique, case sensitive string used to identify the pre-shared key.
+#
+# Mandatory: no
+<% if @tls_psk_identity -%>
+TLSPSKIdentity=<%= @tls_psk_identity %>
+<% end -%>
+
+### Option: TLSPSKFile
+# Full pathname of a file containing the pre-shared key.
+#
+# Mandatory: no
+<% if @tls_psk_file -%>
+TLSPSKFile=<%= @tls_psk_file %>
+<% end -%>

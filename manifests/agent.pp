@@ -1,23 +1,12 @@
-class zabbix::agent::params {
-  $basedir = '/etc/zabbix'
-  $config = "${basedir}/zabbix_agentd.conf"
-  $config_dir = "${basedir}/zabbix_agentd.d"
-  $scripts_dir = "${basedir}/scripts"
-  $pidfile = '/var/run/zabbix/zabbix_agentd.pid'
-  $logfile = '/var/log/zabbix/zabbix_agentd.log'
-  $logfile_size = 0
-  $metadata = "kernel=${::kernel};osfamily=${::osfamily};os=${::operatingsystem};osversion=${::operatingsystemrelease};"
-}
-
 class zabbix::agent (
   $version = '3.0',
-  $config = $::zabbix::agent::params::config,
-  $config_dir = $zabbix::agent::params::config_dir,
-  $scripts_dir = $zabbix::agent::params::scripts_dir,
-  $pidfile = $::zabbix::agent::params::pidfile,
-  $logfile = $::zabbix::agent::params::logfile,
-  $logfile_size = $::zabbix::agent::params::logfile_size,
-  $metadata = $::zabbix::agent::params::metadata,
+  $config = $::zabbix::params::config,
+  $config_dir = $zabbix::params::config_dir,
+  $scripts_dir = $zabbix::params::scripts_dir,
+  $pidfile = $::zabbix::params::pidfile,
+  $logfile = $::zabbix::params::logfile,
+  $logfile_size = $::zabbix::params::logfile_size,
+  $metadata = $::zabbix::params::metadata,
   $remote_commands = disabled,
   $source_ip = undef,
   $listen_port = 10050,
@@ -28,7 +17,17 @@ class zabbix::agent (
   $agents = 3,
   $timeout = 5,
   $unsafe_parameters = false,
-) inherits zabbix::agent::params {
+  $tls_connect = 'unencrypted',
+  $tls_accept = 'unencrypted',
+  $tls_cafile = $::puppet_localcacert,
+  $tls_crlfile = $::puppet_hostcrl,
+  $tls_certfile = $::puppet_hostcert,
+  $tls_keyfile = $::puppet_hostprivkey,
+  $tls_servercert_issuer = undef,
+  $tls_servercert_subject = undef,
+  $tls_psk_identity = undef,
+  $tls_psk_file = undef,
+) inherits zabbix::params {
   validate_re($remote_commands, '^(disabled|enabled|log)$')
 
   case $::osfamily {
