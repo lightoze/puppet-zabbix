@@ -81,6 +81,7 @@ class zabbix::agent (
       ],
       permissions => ['user:zabbix:rX'],
       require     => Package['zabbix-agent'],
+      before      => Service['zabbix-agent'],
     }
   }
 
