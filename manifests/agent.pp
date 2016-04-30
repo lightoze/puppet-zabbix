@@ -10,7 +10,7 @@ class zabbix::agent::params {
 }
 
 class zabbix::agent (
-  $version = '2.2',
+  $version = '3.0',
   $config = $::zabbix::agent::params::config,
   $config_dir = $zabbix::agent::params::config_dir,
   $scripts_dir = $zabbix::agent::params::scripts_dir,
