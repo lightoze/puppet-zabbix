@@ -73,7 +73,18 @@ class zabbix::agent (
     enable => true,
   }
 
-  fooacl::conf { 'puppet-zabbix':
+  if $tls_keyfile == $::puppet_hostprivkey {
+    fooacl::conf { 'puppet-zabbix-key':
+      target      => [
+        dirname($::puppet_hostprivkey),
+        $::puppet_hostprivkey
+      ],
+      permissions => ['user:zabbix:rX'],
+      require     => Package['zabbix-agent'],
+    }
+  }
+
+  fooacl::conf { 'puppet-zabbix-lastrun':
     target      => [
       $::puppet_vardir,
       "${::puppet_vardir}/state/last_run_summary.yaml"
