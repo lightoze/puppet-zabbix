@@ -106,6 +106,9 @@ class zabbix::agent (
     recurse => true,
     purge   => true,
   }
+  file { "${scripts_dir}/local":
+    ensure => directory,
+  }
 
   file { "${scripts_dir}/read_yaml.sh":
     ensure => file,
