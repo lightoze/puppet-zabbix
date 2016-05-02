@@ -6,5 +6,5 @@ class zabbix::params {
   $pidfile = '/var/run/zabbix/zabbix_agentd.pid'
   $logfile = '/var/log/zabbix/zabbix_agentd.log'
   $logfile_size = 0
-  $metadata = "puppet=${::puppetversion};kernel=${::kernel};osfamily=${::osfamily};os=${::operatingsystem};osversion=${::operatingsystemrelease};"
+  $metadata = "puppet=${::puppetversion};kernel=${::kernel};osfamily=${::osfamily};os=${::operatingsystem};osversion=${::operatingsystemrelease};ip=${::networking::ip}"
 }
