@@ -1,8 +1,11 @@
-class zabbix::postgresql {
+class zabbix::postgresql (
+  $binary_path = '',
+  $psql_args = '-d postgres',
+) {
   include zabbix::agent
 
   file { "${zabbix::agent::config_dir}/postgresql.conf":
-    source => 'puppet:///modules/zabbix/postgresql.conf',
+    content => template('zabbix/postgresql.conf.erb'),
   } ~> Service['zabbix-agent']
 
   if defined(Class['postgresql::server']) {
