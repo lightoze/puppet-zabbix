@@ -33,10 +33,17 @@ class zabbix::agent (
   case $::osfamily {
     default: { fail("Unsupported platform ${::osfamily}") }
     'Debian': {
-      $os = downcase($::operatingsystem)
+      if $version >= '3.0' and $::lsbdistcodename == 'precise' {
+        # Use wheezy packages for Ubuntu 12.04
+        $os = 'debian'
+        $release = 'wheezy'
+      } else {
+        $os = downcase($::operatingsystem)
+        $release = $::lsbdistcodename
+      }
       apt::source { 'zabbix':
         location   => "http://repo.zabbix.com/zabbix/${version}/${os}",
-        release    => "${::lsbdistcodename}",
+        release    => $release,
         repos      => 'main',
         key        => 'FBABD5FB20255ECAB22EE194D13D58E479EA5ED4',
         key_server => 'pgp.mit.edu',
