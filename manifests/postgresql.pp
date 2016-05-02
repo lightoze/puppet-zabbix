@@ -14,7 +14,7 @@ class zabbix::postgresql (
     }
     postgresql::server::pg_hba_rule { 'zabbix':
       type        => 'local',
-      database    => 'postgres',
+      database    => 'all',
       user        => 'zabbix',
       auth_method => 'ident',
     }
