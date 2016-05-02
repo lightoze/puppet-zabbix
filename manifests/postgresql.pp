@@ -1,5 +1,5 @@
 class zabbix::postgresql (
-  $binary_path = '',
+  $binary_path = '/usr/bin',
   $connect_options = '-d postgres',
 ) {
   include zabbix::agent
