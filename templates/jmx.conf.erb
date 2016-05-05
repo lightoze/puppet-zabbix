@@ -1,3 +1,0 @@
-UserParameter=jmx.ping[*],(wget --no-proxy -q -O /dev/null "$1/version" && echo 1) || echo 0
-UserParameter=jmx.read[*],wget --no-proxy -q -O- "$1/read/`echo $2 | tr '+' ','`" | perl -0ne '/"value":("([^"]*)"|([^"{}]*))/ && print "$$2$$3"'
-UserParameter=jmx.discovery[*],wget --no-proxy -q -O- "$1/search/`echo $2 | tr '+%' ',*'`" | <%= $discovery_script %>
