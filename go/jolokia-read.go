@@ -224,16 +224,16 @@ func main() {
 		paths := []string{entry.Path}
 		for key := range disk.Keys(nil) {
 			e := ReadCacheByKey(disk, key)
-			if e.CachedValue != nil || e.LastInterval == 0 || e.LastInterval >= 400 {
-				continue
-			}
 			if e.Path == entry.Path {
 				// requested item will be processed anyway
 				continue
 			}
-			if e.LastRead < now - 600 {
+			if e.LastRead < now - 7200 {
 				// remove unused entries
 				disk.Erase(key)
+				continue
+			}
+			if e.CachedValue != nil || e.LastInterval == 0 || e.LastInterval >= 400 {
 				continue
 			}
 			if now > entry.LastFetch + entry.LastInterval / 2 {
