@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"syscall"
+	"io/ioutil"
 )
 
 type Request struct {
@@ -52,6 +53,7 @@ func NewRequest(path string) Request {
 		MBean: parts[0],
 		Config: map[string]interface{}{
 			"includeStackTrace": false,
+			"maxDepth": 1,
 		},
 	}
 	if len(parts) > 1 {
@@ -98,13 +100,18 @@ func JolokiaRead(url string, paths []string) (ret map[string]interface{}) {
 		fmt.Fprintln(os.Stderr, "Unexpected HTTP response status", response.StatusCode)
 		return
 	}
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not fully read response body", err)
+		return
+	}
 
 	var results []Response
-	decoder := json.NewDecoder(response.Body)
+	decoder := json.NewDecoder(bytes.NewReader(body))
 	decoder.UseNumber()
 	err = decoder.Decode(&results)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to parse Jolokia response", err)
+		fmt.Fprintln(os.Stderr, "Failed to parse Jolokia response", string(body), err)
 		return
 	}
 

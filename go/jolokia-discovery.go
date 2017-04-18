@@ -8,6 +8,8 @@ import (
 	"time"
 	"encoding/json"
 	"reflect"
+	"io/ioutil"
+	"bytes"
 )
 
 func JolokiaSearch(url string) []string {
@@ -22,13 +24,18 @@ func JolokiaSearch(url string) []string {
 		fmt.Fprintln(os.Stderr, "Unexpected HTTP response status", response.StatusCode)
 		return nil
 	}
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Could not fully read response body", err)
+		return nil
+	}
 
 	var results map[string]interface{}
-	decoder := json.NewDecoder(response.Body)
+	decoder := json.NewDecoder(bytes.NewReader(body))
 	decoder.UseNumber()
 	err = decoder.Decode(&results)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to parse Jolokia response", err)
+		fmt.Fprintln(os.Stderr, "Failed to parse Jolokia response", string(body), err)
 		return nil
 	}
 
