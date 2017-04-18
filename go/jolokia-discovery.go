@@ -45,15 +45,6 @@ func JolokiaSearch(url string) []string {
 	}
 }
 
-func NonEmpty(args []string) (ret []string) {
-	for _, arg := range args {
-		if len(arg) > 0 {
-			ret = append(ret, arg)
-		}
-	}
-	return
-}
-
 func main() {
 	if len(os.Args) < 3 {
 		fmt.Fprintln(os.Stderr, "Too few arguments")
@@ -61,7 +52,7 @@ func main() {
 	}
 
 	url := os.Args[1]
-	query := strings.Join(NonEmpty(os.Args[2:]), ",")
+	query := NormalizePath(ZabbixUnescape(strings.Join(NonEmpty(os.Args[2:]), ",")))
 
 	items := JolokiaSearch(url + "/search/" + query)
 	if items == nil {
@@ -71,17 +62,16 @@ func main() {
 	data := []interface{}{}
 	for _, item := range items {
 		values := make(map[string]string)
-		values["{#JMXOBJ}"] = item
+		values["{#JMXOBJ}"] = ZabbixEscape(NormalizePath(item))
 
-		base := strings.SplitN(item, ":", 2)
-		values["{#JMXDOMAIN}"] = base[0]
+		domain, path := SplitTwo(item, ":")
+		path, _ = SplitTwo(path, "/")
+		values["{#JMXDOMAIN}"] = domain
 
-		if len(base) > 1 {
-			for _, tag := range strings.Split(base[1], ",") {
-				parts := strings.SplitN(tag, "=", 2)
-				if len(parts) > 1 {
-					values["{#" + strings.ToUpper(parts[0]) + "}"] = parts[1]
-				}
+		for _, tag := range strings.Split(path, ",") {
+			parts := strings.SplitN(tag, "=", 2)
+			if len(parts) > 1 {
+				values["{#" + strings.ToUpper(parts[0]) + "}"] = parts[1]
 			}
 		}
 

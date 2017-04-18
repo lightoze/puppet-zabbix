@@ -8,10 +8,12 @@ class zabbix::jolokia (
   $read_script = "${zabbix::agent::scripts_dir}/jolokia-read"
   $discovery_script = "${zabbix::agent::scripts_dir}/jolokia-discovery"
   file { $read_script:
-    source => 'puppet:///modules/zabbix/jolokia-read.' + $::os['architecture']
+    source => "puppet:///modules/zabbix/jolokia-read.${::os['architecture']}",
+    mode   => '0755',
   }
   file { $discovery_script:
-    source => 'puppet:///modules/zabbix/jolokia-discovery.' + $::os['architecture']
+    source => "puppet:///modules/zabbix/jolokia-discovery.${::os['architecture']}",
+    mode   => '0755',
   }
 
   file { $cache_dir:

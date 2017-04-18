@@ -109,7 +109,7 @@ func JolokiaRead(url string, paths []string) (ret map[string]interface{}) {
 	}
 
 	for _, resp := range results {
-		path := RequestPath(resp.Request)
+		path := NormalizePath(RequestPath(resp.Request))
 		if resp.Status == http.StatusOK {
 			value := resp.Value
 			if value != nil && reflect.TypeOf(value).Name() == "Number" {
@@ -175,15 +175,6 @@ func WriteCache(disk *diskv.Diskv, entry *CacheEntry) {
 	}
 }
 
-func NonEmpty(args []string) (ret []string) {
-	for _, arg := range args {
-		if len(arg) > 0 {
-			ret = append(ret, arg)
-		}
-	}
-	return
-}
-
 func main() {
 	if len(os.Args) < 4 {
 		fmt.Fprintln(os.Stderr, "Too few arguments")
@@ -192,7 +183,7 @@ func main() {
 
 	basedir := os.Args[1]
 	url := os.Args[2]
-	path := strings.Join(NonEmpty(os.Args[3:]), ",")
+	path := NormalizePath(ZabbixUnescape(strings.Join(NonEmpty(os.Args[3:]), ",")))
 	cachedir := filepath.Join(basedir, KeyHash(url))
 
 	// obtain exclusive lock
