@@ -67,6 +67,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	unescaper := strings.NewReplacer("!/", "/")
 	data := []interface{}{}
 	for _, item := range items {
 		values := make(map[string]string)
@@ -74,6 +75,7 @@ func main() {
 
 		domain, path := SplitTwo(item, ":", "")
 		path, _ = SplitTwo(path, "/", "!")
+		path = unescaper.Replace(path)
 		values["{#JMXDOMAIN}"] = domain
 
 		for _, tag := range strings.Split(path, ",") {
