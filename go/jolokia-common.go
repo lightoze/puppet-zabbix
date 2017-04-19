@@ -18,18 +18,41 @@ func NonEmpty(args []string) (ret []string) {
 	return
 }
 
-func SplitTwo(str string, delim string) (string, string) {
-	parts := strings.SplitN(str, delim, 2)
-	if len(parts) < 2 {
-		return str, ""
+func SplitTwo(str string, delim string, escape string) (string, string) {
+	if len(escape) == 0 {
+		parts := strings.SplitN(str, delim, 2)
+		if len(parts) < 2 {
+			return str, ""
+		} else {
+			return parts[0], parts[1]
+		}
 	} else {
-		return parts[0], parts[1]
+		i := 0
+		for {
+			next := strings.Index(str[i:], delim)
+			if next < 0 {
+				return str, ""
+			} else {
+				i += next
+				if strings.HasSuffix(str[:i], escape) {
+					// escaped delimiter
+					if next == 0 {
+						i++
+					}
+					continue
+				} else {
+					// match found
+					break
+				}
+			}
+		}
+		return str[:i], str[i + 1:]
 	}
 }
 
 func NormalizePath(path string) string {
-	domain, path := SplitTwo(path, ":")
-	path, attribute := SplitTwo(path, "/")
+	domain, path := SplitTwo(path, ":", "")
+	path, attribute := SplitTwo(path, "/", "!")
 
 	tags := strings.Split(path, ",")
 	sort.Strings(tags)
@@ -45,7 +68,7 @@ func NormalizePath(path string) string {
 func ZabbixEscape(str string) string {
 	return strings.NewReplacer(
 		`%`, `%%`,
-		`+`, `%+`,
+		`+`, `%2B`,
 		`,`, `+`,
 		"`", "%60",
 		`\`, `%5C`,
@@ -74,7 +97,7 @@ func ZabbixEscape(str string) string {
 }
 
 func ZabbixUnescape(str string) string {
-	return regexp.MustCompile(`\+|%([%+]|[0-9A-Fa-f]{2})?`).ReplaceAllStringFunc(str, func(s string) string {
+	return regexp.MustCompile(`\+|%(%|[0-9A-Fa-f]{2})?`).ReplaceAllStringFunc(str, func(s string) string {
 		if s == `+` {
 			return `,`
 		} else if s == `%` {

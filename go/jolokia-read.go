@@ -46,27 +46,24 @@ type CacheEntry struct {
 }
 
 func NewRequest(path string) Request {
-	parts := strings.SplitN(path, "/", 3)
+	mbean, path := SplitTwo(path, "/", "!")
+	attribute, path := SplitTwo(path, "/", "")
 
 	ret := Request{
 		Type: "read",
-		MBean: parts[0],
+		MBean: strings.NewReplacer("!/", "/").Replace(mbean),
+		Attribute: attribute,
+		Path: path,
 		Config: map[string]interface{}{
 			"includeStackTrace": false,
 			"maxDepth": 1,
 		},
 	}
-	if len(parts) > 1 {
-		ret.Attribute = parts[1]
-	}
-	if len(parts) > 2 {
-		ret.Path = parts[2]
-	}
 	return ret
 }
 
 func RequestPath(request Request) string {
-	var path = request.MBean
+	var path = strings.NewReplacer("/", "!/").Replace(request.MBean)
 	if len(request.Attribute) > 0 {
 		path += "/" + request.Attribute
 		if len(request.Path) > 0 {

@@ -40,10 +40,11 @@ func JolokiaSearch(url string) []string {
 	}
 
 	values := results["value"]
+	escaper := strings.NewReplacer("/", "!/")
 	if values != nil && reflect.TypeOf(values).Kind() == reflect.Slice {
 		ret := []string{}
 		for _, value := range values.([]interface{}) {
-			ret = append(ret, value.(string))
+			ret = append(ret, escaper.Replace(value.(string)))
 		}
 		return ret
 	} else {
@@ -71,8 +72,8 @@ func main() {
 		values := make(map[string]string)
 		values["{#JMXOBJ}"] = ZabbixEscape(NormalizePath(item))
 
-		domain, path := SplitTwo(item, ":")
-		path, _ = SplitTwo(path, "/")
+		domain, path := SplitTwo(item, ":", "")
+		path, _ = SplitTwo(path, "/", "!")
 		values["{#JMXDOMAIN}"] = domain
 
 		for _, tag := range strings.Split(path, ",") {
