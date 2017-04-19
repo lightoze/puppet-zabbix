@@ -1,5 +1,5 @@
 class zabbix::agent (
-  $version = '3.0',
+  $version = '3.2',
   $config = $::zabbix::params::config,
   $config_dir = $zabbix::params::config_dir,
   $scripts_dir = $zabbix::params::scripts_dir,
@@ -60,7 +60,7 @@ class zabbix::agent (
         descr    => "Zabbix",
         baseurl  => "http://repo.zabbix.com/zabbix/${version}/rhel/${::operatingsystemmajrelease}/\$basearch",
         gpgcheck => true,
-        gpgkey   => "http://repo.zabbix.com/RPM-GPG-KEY-ZABBIX",
+        gpgkey   => "http://repo.zabbix.com/RPM-GPG-KEY-ZABBIX-A14FE591",
       }
       Yumrepo['zabbix'] -> Package['zabbix-agent']
     }
